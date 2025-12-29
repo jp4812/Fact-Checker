@@ -256,5 +256,17 @@
         "verdict": "True",
         "category": "Political",
         "source": "text"
+    },
+    {
+        "timestamp": "2025-12-29T23:56:14.222777",
+        "verdict": "False",
+        "category": "Political",
+        "source": "text"
+    },
+    {
+        "timestamp": "2025-12-30T00:00:07.142232",
+        "verdict": "True",
+        "category": "Health",
+        "source": "text"
     }
 ]

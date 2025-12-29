@@ -17,7 +17,7 @@ app = Flask(__name__)
 
 # Configure CORS
 cors = CORS(app, resources={
-    r"/*": {"origins": "https://misinformation-checker-infinite-ite.vercel.app"}
+    r"/*": {"origins": ["http://localhost:3000", "https://misinformation-checker-infinite-ite.vercel.app"]}
 })
 
 # --- Configuration and Setup ---
@@ -75,7 +75,7 @@ def get_claim_category(claim: str) -> str:
     if not api_key or not claim.strip():
         return "Uncategorized"
     try:
-        model = genai.GenerativeModel("models/gemini-2.5-flash")
+        model = genai.GenerativeModel("gemini-2.5-flash")
         prompt = f"""
         Classify the following claim into one of these categories: 
         Health, Financial Scam, Political, Social, Technology, Other.
@@ -118,10 +118,54 @@ def get_fact_check_from_gemini(claim: str, source_type: str, files: list = None)
     if not facts.empty:
         facts_text = "\n".join([f"- {row['text']} (Label: {row['label']})" for _, row in facts.iterrows()])
 
-    prompt = f""" ... (your fact-check prompt here) ... """
+    prompt = f"""You are an expert fact-checker. Analyze the following claim and provide a comprehensive fact-check analysis.
+
+Claim to fact-check: "{claim}"
+
+Relevant facts from local dataset:
+{facts_text}
+
+Please analyze this claim and provide a detailed fact-check in the following JSON format:
+
+{{
+  "claim_analysis": {{
+    "verdict": "True" | "False" | "Misleading" | "Partially True" | "Unverified",
+    "score": <float between 0.0 and 1.0 where 1.0 is completely true and 0.0 is completely false>,
+    "explanation": "<detailed explanation of the verdict>"
+  }},
+  "categorized_points": {{
+    "points_supporting_truthfulness": ["<point 1>", "<point 2>", ...],
+    "points_refuting_the_claim": ["<point 1>", "<point 2>", ...]
+  }},
+  "risk_assessment": {{
+    "possible_consequences": ["<consequence 1>", "<consequence 2>", ...]
+  }},
+  "public_guidance_and_resources": {{
+    "tips_to_identify_similar_scams": ["<tip 1>", "<tip 2>", ...],
+    "official_government_resources": {{
+      "relevant_agency_website": "<website URL or empty string>",
+      "national_helpline_number": "<helpline number or empty string>"
+    }}
+  }},
+  "evidence_log": {{
+    "external_sources": [
+      {{"source_name": "<name>", "url": "<URL>"}},
+      ...
+    ]
+  }}
+}}
+
+Important guidelines:
+- Be thorough and objective in your analysis
+- Base your verdict on available evidence
+- Provide clear explanations
+- List specific points supporting or refuting the claim
+- If the claim appears to be a scam or misinformation, provide relevant tips and resources
+- Include credible external sources where relevant
+- Return ONLY valid JSON, no additional text or markdown formatting"""
 
     try:
-        model = genai.GenerativeModel("models/gemini-2.5-flash")
+        model = genai.GenerativeModel("gemini-2.5-flash")
         generation_config = GenerationConfig(response_mime_type="application/json")
         contents = [prompt]
         if files:
@@ -142,6 +186,8 @@ def get_fact_check_from_gemini(claim: str, source_type: str, files: list = None)
         
         return result
             
+    except json.JSONDecodeError as e:
+        return {"error": f"Failed to parse JSON response from Gemini API: {e}. Response: {response.text[:500]}"}
     except Exception as e:
         return {"error": f"An API or other error occurred: {e}"}
 
@@ -176,10 +222,30 @@ def generate_smart_reply():
     language = data.get("language", "English")
     analysis_str = json.dumps(analysis, indent=2)
 
-    prompt = f""" ... (your smart reply prompt here) ... """
+    prompt = f"""You are helping create smart, respectful replies to share when someone encounters misinformation. 
+
+Based on this fact-check analysis:
+{analysis_str}
+
+Generate 3 short, respectful replies that someone could use to respond to this misinformation. The replies should:
+- Be polite and respectful
+- Point out the misinformation factually
+- Be concise (1-2 sentences each)
+- Be suitable for social media sharing
+
+Return the result in the following JSON format:
+{{
+  "replies": [
+    "<reply 1>",
+    "<reply 2>",
+    "<reply 3>"
+  ]
+}}
+
+Return ONLY valid JSON, no additional text or markdown formatting."""
     
     try:
-        model = genai.GenerativeModel("models/gemini-2.5-flash")
+        model = genai.GenerativeModel("gemini-2.5-flash")
         generation_config = GenerationConfig(response_mime_type="application/json")
         response = model.generate_content(prompt, generation_config=generation_config)
         result = json.loads(response.text)
