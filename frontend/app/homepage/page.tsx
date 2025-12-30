@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button"
 import { Navbar } from "@/components/navbar"
 import { Footer } from "@/components/footer"
-import { StatsSection } from "@/components/stats-section"
+
 import { FloatingElements } from "@/components/floating-elements"
 import { CheckCircle, Gavel, ClipboardCheck, Shield, Zap, Users } from "lucide-react"
 import Link from "next/link"
@@ -51,7 +51,7 @@ export default function HomePage() {
       miniAvatarUrl: "/images/Rudra.jpg",
       linkedinUrl: "https://www.linkedin.com/in/r-patel-997a2a311/",
     },
-    
+
     {
       name: "Het Tala",
       title: "Frontend Developer",
@@ -98,19 +98,19 @@ export default function HomePage() {
                   </Button>
                 </Link>
                 <Link href="#about">
-                <Button
-                  variant="outline"
-                  className="font-bold tracking-wide h-12 px-6 text-base transform hover:scale-105 transition-all duration-300 bg-transparent"
-                >
-                  Learn More
-                </Button>
+                  <Button
+                    variant="outline"
+                    className="font-bold tracking-wide h-12 px-6 text-base transform hover:scale-105 transition-all duration-300 bg-transparent"
+                  >
+                    Learn More
+                  </Button>
                 </Link>
               </div>
             </div>
           </div>
         </section>
 
-        <StatsSection />
+
 
         <section className="py-16 sm:py-24 bg-background">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8">
@@ -249,7 +249,7 @@ export default function HomePage() {
                   miniAvatarUrl={member.miniAvatarUrl}
                   behindGradient="linear-gradient(135deg, #0f172a 0%, #1e293b 100%)"
                   innerGradient="linear-gradient(135deg, #1e293b 0%, #0f172a 100%)"
-                  
+
                   // This function now opens the LinkedIn URL in a new tab
                   onContactClick={() => member.linkedinUrl && window.open(member.linkedinUrl, '_blank', 'noopener,noreferrer')}
                 />
