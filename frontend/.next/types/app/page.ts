@@ -1,4 +1,4 @@
-// File: C:\Users\jemil\Hackathon\Fact-Checker\frontend\app\page.tsx
+// File: C:\Users\Veer\Desktop\gdg\Fact-Checker\frontend\app\page.tsx
 import * as entry from '../../../app/page.js'
 import type { ResolvingMetadata, ResolvingViewport } from 'next/dist/lib/metadata/types/metadata-interface.js'
 
